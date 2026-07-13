@@ -20,7 +20,7 @@ export function renderSettings(state) {
     <button data-action="export-data" class="w-full flex items-center justify-between bg-white rounded-xl2 shadow-card px-4 py-3.5 active:bg-paper-soft">
       <div class="text-left">
         <p class="font-medium text-ink">데이터 내보내기</p>
-        <p class="text-xs text-olive-600 mt-0.5">JSON 파일로 백업</p>
+        <p class="text-xs text-olive-600 mt-0.5">저장 위치를 골라 JSON으로 백업</p>
       </div>
       <svg class="w-5 h-5 text-olive-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
     </button>
