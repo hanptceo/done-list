@@ -295,9 +295,15 @@ function renderRoutineModal() {
           <div class="mt-1.5 flex items-center gap-2.5 flex-wrap">
             ${COLOR_PRESETS.map((c) => `
               <button data-action="pick-color" data-color="${c.hex}"
-                class="w-8 h-8 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-paper transition-shadow ${s.color === c.hex ? 'ring-ink' : 'ring-transparent'}"
+                class="w-8 h-8 rounded-full flex items-center justify-center ring-2 ring-offset-2 ring-offset-paper transition-shadow ${s.color?.toLowerCase() === c.hex.toLowerCase() ? 'ring-ink' : 'ring-transparent'}"
                 style="background:${c.hex}" aria-label="${c.name}"></button>
             `).join('')}
+            <label class="relative w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ring-2 ring-offset-2 ring-offset-paper transition-shadow ${isCustomColor(s.color) ? 'ring-ink' : 'ring-paper-line'}"
+              style="background:${isCustomColor(s.color) ? s.color : 'conic-gradient(from 0deg, #e24b4a, #ef9f27, #639922, #1d9e75, #378add, #7f77dd, #d4537e, #e24b4a)'}"
+              aria-label="직접 선택">
+              ${isCustomColor(s.color) ? '' : '<svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'}
+              <input data-field="customColor" type="color" value="${isCustomColor(s.color) ? s.color : DEFAULT_COLOR}" class="absolute inset-0 opacity-0 cursor-pointer" />
+            </label>
           </div>
         </div>
       </div>
@@ -326,6 +332,14 @@ function wireRoutineModalEvents() {
   el.querySelectorAll('[data-action="pick-color"]').forEach((btn) =>
     btn.addEventListener('click', () => { routineState.color = btn.dataset.color; renderRoutineModal(); })
   );
+
+  const customColorInput = el.querySelector('[data-field="customColor"]');
+  if (customColorInput) {
+    customColorInput.addEventListener('input', (e) => {
+      routineState.color = e.target.value;
+      renderRoutineModal();
+    });
+  }
 
   el.querySelector('[data-action="save"]').addEventListener('click', () => {
     const s = routineState;
