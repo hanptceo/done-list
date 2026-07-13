@@ -1,29 +1,39 @@
 // views/monthly.js
 import { Store } from '../store.js';
-import { monthRange, currentYearMonth, shiftYearMonth, isFutureYearMonth, yearMonthLabel, formatDuration, formatDurationShort, escapeHtml } from '../utils.js';
+import { monthRange, currentYearMonth, shiftYearMonth, isFutureYearMonth, yearMonthLabel, formatDuration, escapeHtml } from '../utils.js';
 
 export function renderMonthly(state) {
   const ym = state.monthAnchor;
   const [start, end] = monthRange(ym);
   const items = Store.getItemsBetween(start, end);
   const routines = Store.getRoutines();
+  const routineById = Object.fromEntries(routines.map((r) => [r.id, r]));
 
-  const totals = {}; // routineId -> minutes
-  let untracked = 0;
+  const routineTotals = {}; // routineId -> minutes
+  const customTotals = {}; // name -> { name, minutes, color }
   let grandTotal = 0;
+
   items.forEach((it) => {
     grandTotal += it.duration;
-    if (it.routineId) {
-      totals[it.routineId] = (totals[it.routineId] || 0) + it.duration;
-    } else {
-      untracked += it.duration;
+    if (it.routineId && routineById[it.routineId]) {
+      routineTotals[it.routineId] = (routineTotals[it.routineId] || 0) + it.duration;
+      return;
     }
+    const name = (it.name || '').trim() || '이름 없음';
+    if (!customTotals[name]) {
+      customTotals[name] = { name, minutes: 0, color: it.color };
+    }
+    customTotals[name].minutes += it.duration;
   });
 
-  const rows = routines
-    .map((r) => ({ routine: r, minutes: totals[r.id] || 0 }))
-    .filter((row) => row.minutes > 0)
-    .sort((a, b) => b.minutes - a.minutes);
+  const rows = [
+    ...Object.entries(routineTotals).map(([id, minutes]) => ({
+      name: routineById[id].name,
+      color: routineById[id].color,
+      minutes,
+    })),
+    ...Object.values(customTotals),
+  ].sort((a, b) => b.minutes - a.minutes);
 
   const maxMinutes = Math.max(1, ...rows.map((r) => r.minutes));
   const nextDisabled = isFutureYearMonth(shiftYearMonth(ym, 1)) || shiftYearMonth(ym, 1) > currentYearMonth();
@@ -54,38 +64,32 @@ export function renderMonthly(state) {
   </section>
 
   <section class="px-4 mt-5 flex-1">
-    <h2 class="text-xs font-mono uppercase tracking-widest text-olive-600 px-0.5">루틴별 작업시간</h2>
+    <h2 class="text-xs font-mono uppercase tracking-widest text-olive-600 px-0.5">작업별 기록시간</h2>
     ${rows.length ? `
       <ul class="mt-2.5 space-y-2">
-        ${rows.map((row) => routineRow(row, maxMinutes)).join('')}
+        ${rows.map((row) => workRow(row, maxMinutes)).join('')}
       </ul>
     ` : `
-      <div class="mt-8 text-center text-ink-soft text-sm">이 달에 기록된 루틴이 없어요</div>
+      <div class="mt-8 text-center text-ink-soft text-sm">이 달에 기록된 작업이 없어요</div>
     `}
-
-    ${untracked > 0 ? `
-      <div class="mt-4 flex items-center justify-between text-xs text-olive-600 px-0.5">
-        <span>루틴 미지정 직접입력 합계</span>
-        <span class="font-mono">${formatDurationShort(untracked)}</span>
-      </div>` : ''}
   </section>
   `;
 }
 
-function routineRow(row, maxMinutes) {
-  const { routine, minutes } = row;
+function workRow(row, maxMinutes) {
+  const { name, color, minutes } = row;
   const pct = Math.max(6, Math.round((minutes / maxMinutes) * 100));
   return `
   <li class="anim-pop bg-white rounded-xl2 shadow-card px-3.5 py-3">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2 min-w-0">
-        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${routine.color}"></span>
-        <span class="text-base font-medium text-ink truncate">${escapeHtml(routine.name)}</span>
+        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${color}"></span>
+        <span class="text-base font-medium text-ink truncate">${escapeHtml(name)}</span>
       </div>
       <span class="text-[15px] text-ink-soft shrink-0">${formatDuration(minutes)}</span>
     </div>
     <div class="mt-2 h-1.5 rounded-full bg-paper-soft overflow-hidden">
-      <div class="h-full rounded-full" style="width:${pct}%; background:${routine.color}"></div>
+      <div class="h-full rounded-full" style="width:${pct}%; background:${color}"></div>
     </div>
   </li>`;
 }

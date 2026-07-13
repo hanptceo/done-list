@@ -115,10 +115,19 @@ export const Store = {
 
   // ---------- Settings ----------
   getSettings() {
-    return read(KEYS.settings, { weekStart: 'mon' });
+    return {
+      weekStart: 'mon',
+      useStartTime: false,
+      ...read(KEYS.settings, {}),
+    };
   },
   saveSettings(s) {
     write(KEYS.settings, s);
+  },
+  updateSettings(patch) {
+    const next = { ...this.getSettings(), ...patch };
+    this.saveSettings(next);
+    return next;
   },
 
   // ---------- Data management ----------

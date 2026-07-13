@@ -1,7 +1,7 @@
 // header.js — top brand header + fixed bottom nav
 
 const MENU_ITEMS = [
-  { view: 'home', label: '홈', icon: 'home' },
+  { view: 'home', label: '오늘', icon: 'home' },
   { view: 'weekly', label: '주간', icon: 'week' },
   { view: 'monthly', label: '한달', icon: 'month' },
   { view: 'routines', label: '루틴', icon: 'routine' },

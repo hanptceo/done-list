@@ -34,6 +34,7 @@ let itemState = null;
 
 export function openItemModal(dateStr, existing = null, onSaved = () => {}) {
   const routines = Store.getRoutines();
+  const useStartTime = Store.getSettings().useStartTime;
   itemState = existing
     ? { ...existing, tab: existing.routineId ? 'routine' : 'custom' }
     : {
@@ -42,7 +43,7 @@ export function openItemModal(dateStr, existing = null, onSaved = () => {}) {
         name: '',
         duration: 30,
         color: DEFAULT_COLOR,
-        startTime: nowHHMM(),
+        startTime: useStartTime ? nowHHMM() : '',
         routineId: null,
         tab: routines.length ? 'routine' : 'custom',
       };
@@ -54,14 +55,16 @@ function renderItemModal() {
   const s = itemState;
   const routines = Store.getRoutines();
   const isEdit = !!s.id;
+  const useStartTime = Store.getSettings().useStartTime;
 
   shellOpen(`
     <div class="px-5 pb-8">
       <div class="flex items-center justify-between mb-4">
         <h2 class="font-display font-semibold text-lg text-ink">${isEdit ? '기록 수정' : '오늘 한 일 기록'}</h2>
+        ${isEdit ? `
         <button data-action="close" class="w-8 h-8 flex items-center justify-center rounded-full text-olive-600 active:bg-paper-soft">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
+        </button>` : '<span class="w-8"></span>'}
       </div>
 
       ${routines.length ? `
@@ -92,7 +95,7 @@ function renderItemModal() {
             class="mt-1.5 w-full rounded-xl2 border border-paper-line bg-white px-3.5 py-2.5 text-ink placeholder:text-olive-600/70 focus:outline-none focus:ring-2 focus:ring-olive-400" />
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="${useStartTime ? 'grid grid-cols-2 gap-3' : ''}">
           <div>
             <label class="text-xs font-mono uppercase tracking-widest text-olive-600">작업시간 (10분 단위)</label>
             <div class="mt-1.5 flex items-center gap-1.5">
@@ -102,11 +105,12 @@ function renderItemModal() {
             </div>
           </div>
 
+          ${useStartTime ? `
           <div>
             <label class="text-xs font-mono uppercase tracking-widest text-olive-600">시작 시간</label>
-            <input data-field="startTime" type="time" step="600" value="${s.startTime}"
+            <input data-field="startTime" type="time" step="600" value="${s.startTime || ''}"
               class="mt-1.5 w-full rounded-xl2 border border-paper-line bg-white px-3 py-2.5 text-ink font-mono text-sm focus:outline-none focus:ring-2 focus:ring-olive-400" />
-          </div>
+          </div>` : ''}
         </div>
 
         <div>
@@ -128,10 +132,13 @@ function renderItemModal() {
       </div>
 
       <div class="mt-6 flex gap-2.5">
-        ${isEdit ? `<button data-action="delete" class="px-4 py-3 rounded-xl2 bg-rose-50 text-rose-700 font-medium">삭제</button>` : ''}
-        <button data-action="save" class="flex-1 py-3 rounded-xl2 bg-olive-700 text-white font-medium shadow-card active:scale-[0.99] transition-transform">
-          ${isEdit ? '수정 완료' : '기록하기'}
-        </button>
+        ${isEdit ? `
+          <button data-action="delete" class="px-4 py-3 rounded-xl2 bg-rose-50 text-rose-700 font-medium">삭제</button>
+          <button data-action="save" class="flex-1 py-3 rounded-xl2 bg-olive-700 text-white font-medium shadow-card active:scale-[0.99] transition-transform">수정 완료</button>
+        ` : `
+          <button data-action="save" class="flex-[7] min-w-0 py-3 rounded-xl2 bg-olive-700 text-white font-medium shadow-card active:scale-[0.99] transition-transform">기록하기</button>
+          <button data-action="close" class="flex-[3] min-w-0 py-3 rounded-xl2 bg-paper-soft text-ink font-medium active:bg-olive-100">닫기</button>
+        `}
       </div>
     </div>
   `);
@@ -141,7 +148,9 @@ function renderItemModal() {
 
 function wireItemModalEvents() {
   const el = root();
-  el.querySelector('[data-action="close"]').addEventListener('click', closeModal);
+  el.querySelectorAll('[data-action="close"]').forEach((btn) =>
+    btn.addEventListener('click', closeModal)
+  );
 
   el.querySelectorAll('[data-action="tab"]').forEach((btn) =>
     btn.addEventListener('click', () => {
@@ -220,21 +229,41 @@ function saveItem() {
     flashError('이름을 입력해주세요');
     return;
   }
+  const useStartTime = Store.getSettings().useStartTime;
   const payload = {
     date: s.date,
     name: s.name.trim(),
     duration: s.duration,
     color: s.color,
-    startTime: s.startTime,
+    startTime: useStartTime ? (s.startTime || '') : '',
     routineId: s.tab === 'routine' ? s.routineId : null,
   };
-  if (s.id) {
+  const onSaved = s._onSaved;
+  const isEdit = !!s.id;
+
+  if (isEdit) {
     Store.updateItem(s.id, payload);
-  } else {
-    Store.addItem(payload);
+    closeModal();
+    onSaved();
+    return;
   }
-  closeModal();
-  s._onSaved();
+
+  Store.addItem(payload);
+  onSaved();
+
+  const routines = Store.getRoutines();
+  itemState = {
+    id: null,
+    date: s.date,
+    name: '',
+    duration: 30,
+    color: DEFAULT_COLOR,
+    startTime: useStartTime ? nowHHMM() : '',
+    routineId: null,
+    tab: routines.length ? 'routine' : 'custom',
+    _onSaved: onSaved,
+  };
+  renderItemModal();
 }
 
 function flashError(msg) {

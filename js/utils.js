@@ -75,8 +75,8 @@ export function formatDuration(minutes) {
 export function formatDurationShort(minutes) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  if (h && m) return `${h}h ${m}분`;
-  if (h) return `${h}h`;
+  if (h && m) return `${h}시간 ${m}분`;
+  if (h) return `${h}시간`;
   return `${m}분`;
 }
 

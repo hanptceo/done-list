@@ -4,6 +4,7 @@ import { Store } from '../store.js';
 export function renderSettings(state) {
   const routines = Store.getRoutines().length;
   const items = Store.getItems().length;
+  const { useStartTime } = Store.getSettings();
 
   return `
   <section class="px-4 pt-4">
@@ -11,6 +12,19 @@ export function renderSettings(state) {
   </section>
 
   <section class="px-4 mt-4 space-y-3 flex-1">
+    <div class="bg-white rounded-xl2 shadow-card px-4 py-3.5">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="font-medium text-ink">시작시간 사용</p>
+          <p class="text-xs text-olive-600 mt-0.5">기록에 시작·종료 시간을 입력하고 표시해요</p>
+        </div>
+        <button data-action="toggle-use-start-time" role="switch" aria-checked="${useStartTime}"
+          class="relative shrink-0 w-11 h-6 rounded-full transition-colors ${useStartTime ? 'bg-olive-600' : 'bg-paper-line'}">
+          <span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-card transition-transform ${useStartTime ? 'translate-x-5' : ''}"></span>
+        </button>
+      </div>
+    </div>
+
     <div class="bg-white rounded-xl2 shadow-card px-4 py-3.5">
       <p class="text-xs font-mono uppercase tracking-widest text-olive-600">저장된 데이터</p>
       <p class="mt-1.5 text-sm text-ink">루틴 ${routines}개 · 기록 ${items}개</p>

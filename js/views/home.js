@@ -10,7 +10,7 @@ export function renderHome(state) {
   const totalMin = items.reduce((s, i) => s + i.duration, 0);
 
   return `
-  <section class="px-4 pt-4">
+  <section class="px-4 pt-4 shrink-0">
     <div class="flex items-center justify-between">
       <button data-action="date-prev" class="w-9 h-9 flex items-center justify-center rounded-full bg-paper-soft active:bg-olive-100 text-ink-soft">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -33,24 +33,27 @@ export function renderHome(state) {
       </div>` : ''}
   </section>
 
-  <section class="px-4 mt-3 flex-1">
+  <section class="px-4 mt-3 flex-1 flex flex-col min-h-0">
     ${items.length ? `
-      <ul class="space-y-2.5">
+      <ul class="space-y-2.5 shrink-0">
         ${items.map((it) => itemCard(it)).join('')}
       </ul>
     ` : emptyState(isToday)}
-  </section>
 
-  <button data-action="add-item" aria-label="기록 추가"
-    class="fixed z-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] right-1/2 translate-x-[9.5rem] w-14 h-14 rounded-full bg-olive-700 text-white shadow-pop
-           flex items-center justify-center active:scale-95 transition-transform">
-    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-  </button>
+    <div class="flex-1 flex items-center justify-center py-6">
+      <button data-action="add-item" aria-label="기록 추가"
+        class="w-14 h-14 rounded-full bg-olive-700 text-white shadow-pop
+               flex items-center justify-center active:scale-95 transition-transform">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+  </section>
   `;
 }
 
 function itemCard(it) {
-  const endTime = it.startTime ? addMinutesToTime(it.startTime, it.duration) : null;
+  const useStartTime = Store.getSettings().useStartTime;
+  const endTime = useStartTime && it.startTime ? addMinutesToTime(it.startTime, it.duration) : null;
   const pct = Math.max(6, Math.min(100, Math.round((it.duration / 60) * 100)));
   return `
   <li data-action="edit-item" data-id="${it.id}"
@@ -60,9 +63,10 @@ function itemCard(it) {
       <div class="flex items-center justify-between gap-2 min-w-0">
         <div class="min-w-0">
           <p class="font-medium text-ink truncate">${escapeHtml(it.name)}</p>
+          ${useStartTime ? `
           <p class="mt-0.5 text-xs font-mono text-olive-600">
             ${it.startTime ? `${it.startTime}${endTime ? ' – ' + endTime : ''}` : '시간 미지정'}
-          </p>
+          </p>` : ''}
         </div>
         <span class="shrink-0 text-xs font-mono font-medium px-2 py-1 rounded-full" style="background:${it.color}1A; color:${it.color}">
           ${formatDurationShort(it.duration)}
@@ -79,11 +83,8 @@ function itemCard(it) {
 
 function emptyState(isToday) {
   return `
-  <div class="anim-pop mt-10 flex flex-col items-center text-center px-6">
-    <div class="w-16 h-16 rounded-full bg-olive-100 flex items-center justify-center text-olive-700">
-      <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    </div>
-    <p class="mt-4 font-display text-ink font-medium">${isToday ? '아직 기록이 없어요' : '기록이 없는 날이에요'}</p>
+  <div class="anim-pop mt-6 flex flex-col items-center text-center px-6 shrink-0">
+    <p class="font-display text-ink font-medium">${isToday ? '아직 기록이 없어요' : '기록이 없는 날이에요'}</p>
     <p class="mt-1 text-sm text-ink-soft">${isToday ? '+ 버튼을 눌러 오늘 한 일을 남겨보세요' : '이 날은 아무것도 기록되지 않았어요'}</p>
   </div>`;
 }

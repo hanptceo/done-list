@@ -97,11 +97,15 @@ function dayRow(dateStr, items) {
 
 function block(it) {
   const widthPx = Math.max(MIN_BLOCK_W, Math.round(it.duration * PX_PER_MIN));
+  const useStartTime = Store.getSettings().useStartTime;
+  const meta = useStartTime
+    ? `${it.startTime || '--:--'} · ${formatDurationShort(it.duration)}`
+    : formatDurationShort(it.duration);
   return `
   <div data-action="edit-item" data-id="${it.id}"
     style="width:${widthPx}px; background:${it.color}1A; border-left:3px solid ${it.color}"
     class="anim-pop shrink-0 rounded-md px-2 py-1.5 cursor-pointer active:opacity-80 overflow-hidden">
     <p class="text-[11px] font-medium text-ink leading-tight truncate">${escapeHtml(it.name)}</p>
-    <p class="mt-0.5 text-[9px] font-mono text-ink-soft leading-none truncate">${it.startTime || '--:--'} · ${formatDurationShort(it.duration)}</p>
+    <p class="mt-0.5 text-[9px] font-mono text-ink-soft leading-none truncate">${meta}</p>
   </div>`;
 }

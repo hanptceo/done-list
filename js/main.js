@@ -110,6 +110,12 @@ appEl.addEventListener('click', (e) => {
     }
 
     // ----- Settings -----
+    case 'toggle-use-start-time': {
+      const cur = Store.getSettings();
+      Store.updateSettings({ useStartTime: !cur.useStartTime });
+      render();
+      break;
+    }
     case 'export-data':
       exportData();
       break;
