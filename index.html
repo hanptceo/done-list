@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#4B5A22" />
+<title>DONE!! · Done List</title>
+<meta name="description" content="오늘 한 일을 기록하는 개인용 Done List" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="DONE!!" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512.png" />
+
+<!-- Fonts: GMarketSans (전역 통일) -->
+
+<!-- Tailwind (CDN / Play) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['"GMarketSans"', 'system-ui', 'sans-serif'],
+          sans: ['"GMarketSans"', 'system-ui', 'sans-serif'],
+          mono: ['"GMarketSans"', 'system-ui', 'sans-serif'],
+        },
+        colors: {
+          paper: {
+            DEFAULT: '#FAF7EF',
+            soft: '#F3EFE2',
+            line: '#E4DDC8',
+          },
+          ink: {
+            DEFAULT: '#2B2A22',
+            soft: '#6B6A5A',
+            faint: '#9B9986',
+          },
+          olive: {
+            50:  '#F5F6EC',
+            100: '#E9ECD2',
+            200: '#D3D9A9',
+            300: '#B7C17C',
+            400: '#9AA956',
+            500: '#7E8F3C',
+            600: '#5F6E2A',
+            700: '#4B5A22',
+            800: '#3C481D',
+            900: '#333D1B',
+          },
+        },
+        boxShadow: {
+          card: '0 1px 2px rgba(43,42,34,0.06), 0 1px 0 rgba(43,42,34,0.04)',
+          pop: '0 10px 30px -8px rgba(43,42,34,0.28)',
+        },
+        borderRadius: {
+          xl2: '1.1rem',
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');
+    font-weight: 300;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+    font-weight: 500;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+    font-weight: 600;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'GMarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+    font-weight: 700;
+    font-display: swap;
+  }
+
+  html, body { height: 100%; }
+  body {
+    background-color: #FAF7EF;
+    background-image:
+      linear-gradient(rgba(43,42,34,0.028) 1px, transparent 1px);
+    background-size: 100% 2.1rem;
+  }
+  ::-webkit-scrollbar { height: 6px; width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #D3D9A9; border-radius: 999px; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  @keyframes pop-in { from { opacity:0; transform: translateY(8px) scale(.98);} to {opacity:1; transform:none;} }
+  .anim-pop { animation: pop-in .18s ease-out; }
+  @keyframes stamp { 0%{ transform: scale(1.6) rotate(-8deg); opacity:0;} 60%{ transform: scale(0.94) rotate(-8deg); opacity:1;} 100%{ transform: scale(1) rotate(-8deg); opacity:1;} }
+  .anim-stamp { animation: stamp .32s cubic-bezier(.2,.9,.3,1.2); }
+</style>
+</head>
+<body class="font-sans text-ink antialiased">
+
+<div id="app" class="mx-auto max-w-md min-h-screen relative flex flex-col pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"></div>
+
+<!-- modal root -->
+<div id="modal-root"></div>
+
+<script type="module" src="./js/main.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
