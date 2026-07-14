@@ -48,6 +48,10 @@ appEl.addEventListener('click', (e) => {
   const action = target.dataset.action;
 
   switch (action) {
+    case 'reload':
+      window.location.reload();
+      break;
+
     case 'nav':
       goTo(target.dataset.view);
       break;

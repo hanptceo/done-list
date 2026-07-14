@@ -11,8 +11,9 @@ function isCustomColor(hex) {
 function shellOpen(innerHtml, { onOutsideClose = true } = {}) {
   root().innerHTML = `
   <div class="fixed inset-0 z-40 flex items-end justify-center">
-    <div data-close-overlay class="absolute inset-0 bg-ink/40 anim-pop" style="animation-duration:.18s"></div>
-    <div class="relative w-full max-w-md bg-paper rounded-t-[1.4rem] shadow-pop anim-pop max-h-[88vh] overflow-y-auto" style="animation-duration:.22s">
+    <div data-close-overlay class="absolute inset-0 z-0 bg-ink/40 anim-pop" style="animation-duration:.18s"></div>
+    <div class="relative z-10 w-full max-w-md bg-paper rounded-t-[1.4rem] shadow-pop max-h-[88vh] overflow-y-auto"
+         style="-webkit-overflow-scrolling:touch">
       <div class="sticky top-0 flex justify-center pt-2.5 pb-1 bg-paper">
         <div class="w-10 h-1.5 rounded-full bg-paper-line"></div>
       </div>
@@ -21,6 +22,20 @@ function shellOpen(innerHtml, { onOutsideClose = true } = {}) {
   </div>`;
   if (onOutsideClose) {
     root().querySelector('[data-close-overlay]').addEventListener('click', closeModal);
+  }
+  // iOS PWA: keep focused fields visible above the keyboard
+  const sheet = root().querySelector('.relative.z-10');
+  if (sheet) {
+    sheet.addEventListener('focusin', (e) => {
+      const t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      if (!/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+      setTimeout(() => {
+        try {
+          t.scrollIntoView({ block: 'center', inline: 'nearest' });
+        } catch (_) { /* ignore */ }
+      }, 300);
+    });
   }
 }
 
@@ -109,7 +124,7 @@ function renderItemModal() {
           <div>
             <label class="text-xs font-mono uppercase tracking-widest text-olive-600">시작 시간</label>
             <input data-field="startTime" type="time" step="600" value="${s.startTime || ''}"
-              class="mt-1.5 w-full rounded-xl2 border border-paper-line bg-white px-3 py-2.5 text-ink font-mono text-sm focus:outline-none focus:ring-2 focus:ring-olive-400" />
+              class="mt-1.5 w-full rounded-xl2 border border-paper-line bg-white px-3 py-2.5 text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-olive-400" />
           </div>` : ''}
         </div>
 
@@ -194,7 +209,7 @@ function wireItemModalEvents() {
 
   const customColorInput = el.querySelector('[data-field="customColor"]');
   if (customColorInput) {
-    customColorInput.addEventListener('input', (e) => {
+    customColorInput.addEventListener('change', (e) => {
       itemState.color = e.target.value;
       renderItemModal();
     });
@@ -364,7 +379,7 @@ function wireRoutineModalEvents() {
 
   const customColorInput = el.querySelector('[data-field="customColor"]');
   if (customColorInput) {
-    customColorInput.addEventListener('input', (e) => {
+    customColorInput.addEventListener('change', (e) => {
       routineState.color = e.target.value;
       renderRoutineModal();
     });

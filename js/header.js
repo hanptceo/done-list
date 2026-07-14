@@ -21,7 +21,10 @@ export function renderHeader(state) {
   return `
   <header class="sticky top-0 z-30 bg-paper/90 backdrop-blur border-b border-paper-line">
     <div class="flex items-center justify-between px-4 h-14">
-      <span class="font-display font-semibold text-lg tracking-tight text-ink">DONE!!DONE!!</span>
+      <button data-action="reload" type="button" aria-label="새로고침"
+        class="font-display font-semibold text-lg tracking-tight text-ink -ml-1.5 px-1.5 py-1 rounded-lg active:bg-paper-soft">
+        DONE!!DONE!!
+      </button>
       <span class="font-mono text-[11px] uppercase tracking-widest text-olive-600">${activeLabel}</span>
     </div>
   </header>`;

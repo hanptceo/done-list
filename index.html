@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#4B5A22" />
 <title>DONE!! · Done List</title>
 <meta name="description" content="오늘 한 일을 기록하는 개인용 Done List" />
@@ -102,6 +102,10 @@
     background-image:
       linear-gradient(rgba(43,42,34,0.028) 1px, transparent 1px);
     background-size: 100% 2.1rem;
+  }
+  /* iOS Safari/PWA: <16px inputs + scale lock can block the keyboard */
+  input, textarea, select {
+    font-size: 16px;
   }
   ::-webkit-scrollbar { height: 6px; width: 6px; }
   ::-webkit-scrollbar-thumb { background: #D3D9A9; border-radius: 999px; }

@@ -1,5 +1,5 @@
-/* Minimal service worker for installability + offline shell */
-const CACHE = 'donelist-v1';
+/* Network-first service worker for installability + offline fallback */
+const CACHE = 'donelist-v3';
 const PRECACHE = [
   './',
   './index.html',
@@ -37,15 +37,14 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const networked = fetch(request)
-        .then((response) => {
+    fetch(request)
+      .then((response) => {
+        if (response && response.ok) {
           const copy = response.clone();
           caches.open(CACHE).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => cached);
-      return cached || networked;
-    })
+        }
+        return response;
+      })
+      .catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html')))
   );
 });
